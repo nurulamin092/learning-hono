@@ -1,6 +1,6 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import { products } from './data/products.js'
+import products from './routes/products.js'
 
 const app = new Hono()
 
@@ -8,19 +8,12 @@ app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
 
+ 
+const api = new Hono().basePath('/api')
 
-app.get('/products', (c) => {
-  return c.json(products)
-})
+api.route('/products', products)
 
-app.get('/products/:id', (c) => {
-  const { id } = c.req.param()
-  const product = products.find((p) => p.id === id)
-  if (!product) {
-    return c.json({ error: 'Product not found' }, 404)
-  }
-  return c.json(product)
-})
+app.route('/', api)
 
 serve({
   fetch: app.fetch,
